@@ -56,7 +56,7 @@ func (db *redisServer) Find(ipaddr string) (bool, bool) {
 		fmt.Print(count, err)
 		return false, false
 	}
-	if count > maxIPInAnHour {
+	if count >= maxIPInAnHour {
 		return true, true
 	}
 	return true, false
@@ -67,7 +67,7 @@ func (db *redisServer) GetKey(ipaddr string) (int, string, error) {
 	if err != nil {
 		return 0, "", err
 	}
-	return res, db.client.TTL(ipaddr).String(), nil
+	return res, db.client.TTL(ipaddr).Val().String(), nil
 }
 
 func (db *redisServer) SetKey(ipaddr string) error {
@@ -79,11 +79,12 @@ func (db *redisServer) SetKey(ipaddr string) error {
 }
 
 func (db *redisServer) IncrementVisitByIP(ipaddr string) error {
-	if result, err := db.client.Incr(ipaddr).Result(); err != nil {
-		fmt.Print(result)
+	if _, err := db.client.Incr(ipaddr).Result(); err != nil {
 		return err
-	} else {
-		fmt.Print(result)
-		return nil
 	}
+	return nil
+}
+
+func (db *redisServer) Reset() {
+	db.client.FlushDB()
 }

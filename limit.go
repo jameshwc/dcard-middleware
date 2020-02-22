@@ -11,11 +11,12 @@ import (
 const maxIPInAnHour int = 10
 
 func getIP(r *http.Request) string {
-	forwarded := r.Header.Get("X-FORWARDED-FOR")
-	if forwarded != "" {
-		return strings.Split(forwarded, ":")[0]
+	ip := r.Header.Get("X-Real-IP")
+	fmt.Println(ip, r.RemoteAddr)
+	if ip == "" {
+		return strings.Split(r.RemoteAddr, ":")[0]
 	}
-	return strings.Split(r.RemoteAddr, ":")[0]
+	return ip
 }
 func limitVisit(next http.HandlerFunc, db Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +26,6 @@ func limitVisit(next http.HandlerFunc, db Database) http.HandlerFunc {
 		if !exist {
 			db.SetKey(ip)
 		} else {
-			fmt.Print("Increment!")
 			db.IncrementVisitByIP(ip)
 		}
 		count, ttl, err := db.GetKey(ip)
