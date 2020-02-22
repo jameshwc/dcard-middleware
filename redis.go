@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/BurntSushi/toml"
 	"github.com/go-redis/redis"
@@ -18,7 +17,7 @@ type Database interface {
 	// Check if the IP is in database and whether it's forbidden or not
 	Find(string) (bool, bool)
 	// return X-RateLimit-Remaining and X-RateLimit-Reset
-	GetKeys(string) (string, string, error)
+	GetKeys(string) (int, string, error)
 	// If IP is not found in database, then create one
 	SetKeys(string) error
 	// Increment the visit counter of the IP, return X-RateLimit-Remaining
@@ -51,20 +50,20 @@ func (db *redisServer) Init() error {
 }
 
 func (db *redisServer) Find(ipaddr string) (bool, bool) {
-	res, err := db.client.Get(ipaddr).Result()
+	count, err := db.client.Get(ipaddr).Int()
 	if err != nil {
 		return false, false
 	}
-	if count, err := strconv.Atoi(res); count > 1000 {
+	if count > 1000 {
 		return true, true
 	}
 	return true, false
 }
 
-func (db *redisServer) GetKey(ipaddr string) (string, string, error) {
-	res, err := db.client.Get(ipaddr).Result()
+func (db *redisServer) GetKey(ipaddr string) (int, string, error) {
+	res, err := db.client.Get(ipaddr).Int()
 	if err != nil {
-		return "", "", err
+		return 0, "", err
 	}
 	return res, db.client.TTL(ipaddr).String(), nil
 }
