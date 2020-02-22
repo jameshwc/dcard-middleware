@@ -6,9 +6,11 @@ import (
 )
 
 func main() {
-	var db database
-	db.Init()
-	http.HandleFunc("/", hello)
+	var db redisServer
+	if err := db.Init(); err != nil {
+		log.Fatal("redis server", err)
+	}
+	http.HandleFunc("/", limitVisit(hello, &db))
 	if err := http.ListenAndServe(":8001", nil); err != nil {
 		log.Fatal(err)
 	}

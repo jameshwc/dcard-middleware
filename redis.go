@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/go-redis/redis"
@@ -17,9 +18,9 @@ type Database interface {
 	// Check if the IP is in database and whether it's forbidden or not
 	Find(string) (bool, bool)
 	// return X-RateLimit-Remaining and X-RateLimit-Reset
-	GetKeys(string) (int, string, error)
+	GetKey(string) (int, string, error)
 	// If IP is not found in database, then create one
-	SetKeys(string) error
+	SetKey(string) error
 	// Increment the visit counter of the IP, return X-RateLimit-Remaining
 	IncrementVisitByIP(string) error
 }
@@ -51,10 +52,11 @@ func (db *redisServer) Init() error {
 
 func (db *redisServer) Find(ipaddr string) (bool, bool) {
 	count, err := db.client.Get(ipaddr).Int()
-	if err != nil {
+	if err != nil && err != redis.Nil {
+		fmt.Print(count, err)
 		return false, false
 	}
-	if count > 1000 {
+	if count > maxIPInAnHour {
 		return true, true
 	}
 	return true, false
@@ -69,7 +71,7 @@ func (db *redisServer) GetKey(ipaddr string) (int, string, error) {
 }
 
 func (db *redisServer) SetKey(ipaddr string) error {
-	err := db.client.Set(ipaddr, 1, 3600).Err()
+	err := db.client.Set(ipaddr, 1, time.Hour).Err()
 	if err != nil {
 		return err
 	}
@@ -77,8 +79,11 @@ func (db *redisServer) SetKey(ipaddr string) error {
 }
 
 func (db *redisServer) IncrementVisitByIP(ipaddr string) error {
-	if err := db.client.Incr(ipaddr).Err(); err != nil {
+	if result, err := db.client.Incr(ipaddr).Result(); err != nil {
+		fmt.Print(result)
 		return err
+	} else {
+		fmt.Print(result)
+		return nil
 	}
-	return nil
 }
