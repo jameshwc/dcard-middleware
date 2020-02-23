@@ -51,8 +51,7 @@ func (db *redisServer) Init() error {
 
 func (db *redisServer) Find(ipaddr string) (bool, bool) {
 	count, err := db.client.Get(ipaddr).Int()
-	if err != nil && err != redis.Nil {
-		fmt.Print(count, err)
+	if err == redis.Nil {
 		return false, false
 	}
 	if count >= maxIPInAnHour {
@@ -85,5 +84,5 @@ func (db *redisServer) IncrementVisitByIP(ipaddr string) error {
 }
 
 func (db *redisServer) Reset() {
-	db.client.FlushDB()
+	db.client.FlushAll()
 }

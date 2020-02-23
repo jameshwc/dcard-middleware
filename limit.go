@@ -12,7 +12,6 @@ const maxIPInAnHour int = 10
 
 func getIP(r *http.Request) string {
 	ip := r.Header.Get("X-Real-IP")
-	fmt.Println(ip, r.RemoteAddr)
 	if ip == "" {
 		return strings.Split(r.RemoteAddr, ":")[0]
 	}
@@ -21,13 +20,18 @@ func getIP(r *http.Request) string {
 func limitVisit(next http.HandlerFunc, db Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ip := getIP(r)
-		fmt.Println(ip)
 		exist, tooMany := db.Find(ip)
 		if !exist {
 			fmt.Println("Set Key")
-			db.SetKey(ip)
+			err := db.SetKey(ip)
+			if err != nil {
+				log.Fatal("Set redis key", err)
+			}
 		} else {
-			db.IncrementVisitByIP(ip)
+			err := db.IncrementVisitByIP(ip)
+			if err != nil {
+				log.Fatal("Increment redis key", err)
+			}
 		}
 		count, ttl, err := db.GetKey(ip)
 		if err != nil {
