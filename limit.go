@@ -1,14 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
-const maxIPInAnHour int = 10
+const maxIPInAnHour int = 1000
 
 func getIP(r *http.Request) string {
 	ip := r.Header.Get("X-Real-IP")
@@ -22,7 +21,6 @@ func limitVisit(next http.HandlerFunc, db Database) http.HandlerFunc {
 		ip := getIP(r)
 		exist, tooMany := db.Find(ip)
 		if !exist {
-			fmt.Println("Set Key")
 			err := db.SetKey(ip)
 			if err != nil {
 				log.Fatal("Set redis key", err)
