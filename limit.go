@@ -24,6 +24,7 @@ func limitVisit(next http.HandlerFunc, db Database) http.HandlerFunc {
 		fmt.Println(ip)
 		exist, tooMany := db.Find(ip)
 		if !exist {
+			fmt.Println("Set Key")
 			db.SetKey(ip)
 		} else {
 			db.IncrementVisitByIP(ip)

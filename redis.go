@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 )
 
 const dbConfigFile = "db.toml"
@@ -39,9 +39,8 @@ func (db *redisServer) Init() error {
 	}
 	addr := fmt.Sprintf("%s:%d", db.Config.Host, db.Config.Port)
 	db.client = redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: db.Config.Password, // no password set
-		DB:       0,                  // use default DB
+		Addr: addr,
+		DB:   1, // use default DB
 	})
 	_, err := db.client.Ping().Result()
 	if err != nil {
