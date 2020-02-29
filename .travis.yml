@@ -16,4 +16,4 @@ before_script:
 
 script:
   - cp db.toml.example db.toml
-  - go run .
+  - go build
