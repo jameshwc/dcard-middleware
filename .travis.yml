@@ -11,7 +11,7 @@ git:
 sudo: true
 
 install:
-  - apt-get install redis
+  - sudo apt-get install redis
 
 before_script:
   - go test
