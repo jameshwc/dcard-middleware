@@ -8,10 +8,8 @@ env: GO111MODULE=on
 git:
   depth: 1
 
-sudo: true
-
-install:
-  - sudo apt-get install redis
+services:
+  - redis-server
 
 before_script:
   - go test
