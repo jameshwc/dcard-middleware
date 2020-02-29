@@ -7,7 +7,7 @@ import (
 
 func main() {
 	var db redisServer
-	if err := db.Init(); err != nil {
+	if err := db.Init(10, 10); err != nil {
 		log.Fatal("redis server", err)
 	}
 	db.Reset()

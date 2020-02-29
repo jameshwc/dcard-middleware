@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const maxIPInAnHour int = 1000
+// const maxIPInAnHour int = 1000
 
 func getIP(r *http.Request) string {
 	ip := r.Header.Get("X-Real-IP")
@@ -31,11 +31,10 @@ func limitVisit(next http.HandlerFunc, db Database) http.HandlerFunc {
 				log.Fatal("Increment redis key", err)
 			}
 		}
-		count, ttl, err := db.GetKey(ip)
+		remaining, ttl, err := db.GetKey(ip)
 		if err != nil {
-			log.Fatal("get redis key", err)
+			log.Fatal("Get redis key", err)
 		}
-		remaining := maxIPInAnHour - count
 		w.Header().Add("X-RateLimit-Remaining", strconv.Itoa(remaining))
 		w.Header().Add("X-RateLimit-Reset", ttl)
 		if tooMany {
