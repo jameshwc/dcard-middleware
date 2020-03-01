@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -51,7 +52,7 @@ func (db *redisServer) Find(ipaddr string) (existed bool, toomuch bool) {
 	return true, false
 }
 
-func (db *redisServer) GetKey(ipaddr string) (int, string, error) {
+func (db *redisServer) GetKey(ipaddr string) (string, string, error) {
 	res, err := db.client.Get(ipaddr).Int()
 	if err != nil {
 		return 0, "", err
@@ -60,7 +61,7 @@ func (db *redisServer) GetKey(ipaddr string) (int, string, error) {
 	if remaining < 0 {
 		remaining = 0
 	}
-	return remaining, db.client.TTL(ipaddr).Val().String(), nil
+	return strconv.Itoa(remaining), db.client.TTL(ipaddr).Val().String(), nil
 }
 
 func (db *redisServer) SetKey(ipaddr string) error {
