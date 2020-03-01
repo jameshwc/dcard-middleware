@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 // const maxIPInAnHour int = 1000
@@ -40,6 +40,9 @@ func limitVisit(db Database) gin.HandlerFunc {
 		c.Writer.Header().Set("X-RateLimit-Remaining", strconv.Itoa(remaining))
 		c.Writer.Header().Set("X-RateLimit-Reset", ttl)
 		if tooMany {
+			log.WithFields(log.Fields{
+				"ip": ip,
+			}).Info("Someone's ip has been forbidden")
 			c.AbortWithStatus(429)
 		} else {
 			c.Status(200)

@@ -1,11 +1,20 @@
 package main
 
 import (
-	"log"
+	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 )
 
+func init() {
+	f, err := os.OpenFile("limit.log", os.O_WRONLY|os.O_CREATE, 0755)
+	if err != nil {
+		log.Fatal("error: create log file")
+	}
+	log.SetOutput(f)
+}
 func setupRouter(db Database) *gin.Engine {
 	r := gin.Default()
 	r.GET("/", limitVisit(db), hello)
