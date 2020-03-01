@@ -1,10 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 // const maxIPInAnHour int = 1000
@@ -16,9 +19,10 @@ func getIP(r *http.Request) string {
 	}
 	return ip
 }
-func limitVisit(next http.HandlerFunc, db Database) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ip := getIP(r)
+func limitVisit(db Database) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ip := c.ClientIP()
+		fmt.Println("ip:", ip)
 		exist, tooMany := db.Find(ip)
 		if !exist {
 			err := db.SetKey(ip)
@@ -35,13 +39,13 @@ func limitVisit(next http.HandlerFunc, db Database) http.HandlerFunc {
 		if err != nil {
 			log.Fatal("Get redis key", err)
 		}
-		w.Header().Add("X-RateLimit-Remaining", strconv.Itoa(remaining))
-		w.Header().Add("X-RateLimit-Reset", ttl)
+		c.Writer.Header().Set("X-RateLimit-Remaining", strconv.Itoa(remaining))
+		c.Writer.Header().Set("X-RateLimit-Reset", ttl)
 		if tooMany {
-			w.WriteHeader(429)
+			c.AbortWithStatus(429)
 		} else {
-			w.WriteHeader(200)
+			c.Status(200)
 		}
-		next.ServeHTTP(w, r)
+		c.Next()
 	}
 }
