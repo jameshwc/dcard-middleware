@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -47,7 +46,6 @@ func Test_limitVisit(t *testing.T) {
 	// test if ttl works as expected
 	s.FastForward(redisTestServer.timeout)
 	w := getResponse(router)
-	fmt.Print(w.Result().Header)
 	val, err := strconv.Atoi(w.Result().Header.Get("X-RateLimit-Remaining"))
 	if err != nil {
 		t.Fatal("X-RateLimit-Remaining is not a number")

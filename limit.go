@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -22,7 +21,6 @@ func getIP(r *http.Request) string {
 func limitVisit(db Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ip := c.ClientIP()
-		fmt.Println("ip:", ip)
 		exist, tooMany := db.Find(ip)
 		if !exist {
 			err := db.SetKey(ip)

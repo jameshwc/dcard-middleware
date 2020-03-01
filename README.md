@@ -24,4 +24,4 @@ Dcard 每天午夜都有大量使用者湧入抽卡，為了不讓伺服器過�
 - ~~test~~
 - ~~CI~~
 - log
-- framework
+- ~~framework~~
