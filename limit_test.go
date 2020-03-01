@@ -44,8 +44,13 @@ func Test_limitVisit(t *testing.T) {
 		}
 	}
 	// test if ttl works as expected
-	s.FastForward(redisTestServer.timeout)
+	s.FastForward(redisTestServer.timeout - 1)
 	w := getResponse(router)
+	if w.Code != 429 {
+		t.Fatal("not sending 429 code correctly before last sec of ttl")
+	}
+	s.FastForward(time.Second)
+	w = getResponse(router)
 	val, err := strconv.Atoi(w.Result().Header.Get("X-RateLimit-Remaining"))
 	if err != nil {
 		t.Fatal("X-RateLimit-Remaining is not a number")
