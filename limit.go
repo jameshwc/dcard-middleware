@@ -1,9 +1,7 @@
 package main
 
 import (
-	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -11,13 +9,6 @@ import (
 
 // const maxIPInAnHour int = 1000
 
-func getIP(r *http.Request) string {
-	ip := r.Header.Get("X-Real-IP")
-	if ip == "" {
-		return strings.Split(r.RemoteAddr, ":")[0]
-	}
-	return ip
-}
 func limitVisit(db Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ip := c.ClientIP()
