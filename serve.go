@@ -13,7 +13,7 @@ func setupRouter(db Database) *gin.Engine {
 }
 func main() {
 	var db redisServer
-	if err := db.Init(10, 10); err != nil {
+	if err := db.Init(1000, 3600); err != nil {
 		log.Fatal("redis server", err)
 	}
 	db.Reset()
