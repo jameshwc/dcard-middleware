@@ -15,5 +15,5 @@ before_script:
   - go test
 
 script:
-  - cp db.toml.example db.toml
+  - cp config.toml.example config.toml
   - go build
