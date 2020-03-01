@@ -2,8 +2,10 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func hello(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello World!"))
+func hello(c *gin.Context) {
+	c.String(http.StatusOK, "Hello, world!")
 }

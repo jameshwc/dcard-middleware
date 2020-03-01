@@ -2,7 +2,8 @@ package main
 
 import (
 	"log"
-	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -11,8 +12,7 @@ func main() {
 		log.Fatal("redis server", err)
 	}
 	db.Reset()
-	http.HandleFunc("/", limitVisit(hello, &db))
-	if err := http.ListenAndServe(":8001", nil); err != nil {
-		log.Fatal(err)
-	}
+	r := gin.Default()
+	r.GET("/", limitVisit(hello, &db))
+	r.Run(":8001")
 }

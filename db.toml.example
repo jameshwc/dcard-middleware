@@ -1,4 +1,0 @@
-[config]
-host = "127.0.0.1"
-name = "dcard_homework"
-port = 6379

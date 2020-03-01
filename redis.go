@@ -16,14 +16,14 @@ type redisServer struct {
 	Config struct {
 		Host, Name, Password string
 		Port                 int
-	}
+	} `toml:"database"`
 	client  *redis.Client
 	maxIP   int
 	timeout time.Duration
 }
 
 func (db *redisServer) Init(maxIP int, timeout int) error {
-	if _, err := toml.DecodeFile("db.toml", db); err != nil {
+	if _, err := toml.DecodeFile("config.toml", db); err != nil {
 		return err
 	}
 	addr := fmt.Sprintf("%s:%d", db.Config.Host, db.Config.Port)
