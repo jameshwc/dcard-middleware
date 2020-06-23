@@ -23,9 +23,10 @@ type redisServer struct {
 	timeout time.Duration
 }
 
-func (db *redisServer) Init(maxIP int, timeout int) error {
+func NewRedis(maxIP int, timeout int) (*redisServer, error) {
+	db := new(redisServer)
 	if _, err := toml.DecodeFile("config.toml", db); err != nil {
-		return err
+		return nil, err
 	}
 	addr := fmt.Sprintf("%s:%d", db.Config.Host, db.Config.Port)
 	db.client = redis.NewClient(&redis.Options{
@@ -36,9 +37,9 @@ func (db *redisServer) Init(maxIP int, timeout int) error {
 	db.maxIP = maxIP
 	_, err := db.client.Ping().Result()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return db, nil
 }
 
 func (db *redisServer) Find(ipaddr string) (existed bool, toomuch bool) {
@@ -55,7 +56,7 @@ func (db *redisServer) Find(ipaddr string) (existed bool, toomuch bool) {
 func (db *redisServer) GetKey(ipaddr string) (string, string, error) {
 	res, err := db.client.Get(ipaddr).Int()
 	if err != nil {
-		return 0, "", err
+		return "", "", err
 	}
 	remaining := db.maxIP - res
 	if remaining < 0 {

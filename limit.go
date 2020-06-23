@@ -1,8 +1,6 @@
 package main
 
 import (
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -28,7 +26,7 @@ func limitVisit(db Database) gin.HandlerFunc {
 		if err != nil {
 			log.Fatal("Get redis key", err)
 		}
-		c.Writer.Header().Set("X-RateLimit-Remaining", strconv.Itoa(remaining))
+		c.Writer.Header().Set("X-RateLimit-Remaining", remaining)
 		c.Writer.Header().Set("X-RateLimit-Reset", ttl)
 		if tooMany {
 			log.WithFields(log.Fields{

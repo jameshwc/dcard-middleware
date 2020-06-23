@@ -8,6 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	maxIP   = 1000
+	timeout = 3600
+)
+
 func init() {
 	f, err := os.OpenFile("limit.log", os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
@@ -15,17 +20,19 @@ func init() {
 	}
 	log.SetOutput(f)
 }
+
 func setupRouter(db Database) *gin.Engine {
 	r := gin.Default()
 	r.GET("/", limitVisit(db), hello)
 	return r
 }
+
 func main() {
-	var db redisServer
-	if err := db.Init(1000, 3600); err != nil {
+	db, err := NewRedis(maxIP, timeout)
+	if err != nil {
 		log.Fatal("redis server", err)
 	}
 	db.Reset()
-	r := setupRouter(&db)
+	r := setupRouter(db)
 	r.Run()
 }
